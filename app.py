@@ -9,7 +9,9 @@ from rag.web_search import tavily_search
 from rag.context_builder import build_context
 from rag.qa_chain import generate_answer
 
-
+# -------------------------------
+# Streamlit Page Configuration
+# -------------------------------
 st.set_page_config(
     page_title="Hybrid Multi-Document RAG Search",
     page_icon="🔍",
@@ -19,7 +21,9 @@ st.set_page_config(
 st.title("🔍 Hybrid Multi-Document RAG Search Engine")
 st.caption("FAISS • LangChain • Tavily • Streamlit")
 
-
+# -------------------------------
+# Sidebar: Document Management
+# -------------------------------
 st.sidebar.header("📂 Document Management")
 
 uploaded_files = st.sidebar.file_uploader(
@@ -33,7 +37,9 @@ use_web = st.sidebar.toggle(
     value=True
 )
 
-
+# -------------------------------
+# Save Uploaded Files
+# -------------------------------
 file_paths = []
 
 if uploaded_files:
@@ -47,7 +53,9 @@ if uploaded_files:
 
     st.sidebar.success(f"{len(file_paths)} file(s) ready for indexing")
 
-
+# -------------------------------
+# Index Documents
+# -------------------------------
 if st.sidebar.button("🔄 Index Documents"):
     if not file_paths:
         st.sidebar.warning("Upload at least one PDF first.")
@@ -57,10 +65,15 @@ if st.sidebar.button("🔄 Index Documents"):
             chunks = chunk_documents(documents)
             index_documents(chunks)
         st.sidebar.success("Documents indexed successfully!")
--
+
+# -------------------------------
+# Load FAISS Index
+# -------------------------------
 db = load_faiss_index()
 
-
+# -------------------------------
+# Main Chat Interface
+# -------------------------------
 query = st.text_input("💬 Ask a question")
 
 if query:
@@ -73,21 +86,15 @@ if query:
             doc_chunks = []
             web_results = []
 
-            # Document retrieval
             if route in ["document", "hybrid"]:
                 doc_chunks = db.similarity_search(query, k=5)
 
-            # Web search
             if route in ["web", "hybrid"] and use_web:
                 web_results = tavily_search(query)
 
-            # Build RAG context
             context = build_context(doc_chunks, web_results)
-
-            # Generate answer
             answer = generate_answer(context, query)
 
-        
         st.subheader("🧠 Answer")
 
         if route == "document":
@@ -99,7 +106,6 @@ if query:
 
         st.write(answer)
 
-       
         with st.expander("📄 Document Evidence"):
             if doc_chunks:
                 for i, doc in enumerate(doc_chunks, 1):
@@ -115,3 +121,5 @@ if query:
                     st.write(res.get("content", ""))
             else:
                 st.info("No web evidence used.")
+
+
