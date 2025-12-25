@@ -1,7 +1,0 @@
-streamlit
-langchain
-openai
-faiss-cpu
-tavily-python
-python-dotenv
-pypdf
